@@ -273,6 +273,8 @@ STR must match (rx nibbles-mode-debruijn-index)."
     (0 "_"))
    (nibbles-mode--command-sympha-regexp
     (0 "."))
+   ((rx "`'")
+    (0 "."))
    ((rx (or (nibbles-mode-string ?\")
             (nibbles-mode-string ?\')))
     (0 nil))))
