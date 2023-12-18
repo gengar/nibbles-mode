@@ -193,33 +193,34 @@ STR must match (rx nibbles-mode-debruijn-index)."
 (defun nibbles-mode-info-at-point ()
   "Meant for `eldoc-documentation-function'."
   (save-excursion
-    (when (looking-at (rx (or (syntax whitespace)
-                              buffer-end)))
-      (backward-char))
-    (let ((pos (point))
-          match?)
-      (cl-loop for p from (max (point-min) (- pos nibbles-mode--command-length)) to pos
-               do (goto-char p)
-               until (setq match? (and (looking-at nibbles-mode--builtins-regexp)
-                                       (> (match-end 0) pos))))
-      (when match?
-        (cond ((match-beginning 1)
-               (let ((s (match-string 1)))
-                 (format "%s : DeBruijn index %d"
-                         s
-                         (nibbles-mode-debruijn-index-string-to-number s))))
-              ((match-beginning 2)
-               (cdr
-                (assoc (match-string 2)
-                       nibbles-mode--syntax-alist)))
-              ((match-beginning 3)
-               (cdr
-                (assoc (match-string 3)
-                       nibbles-mode--command-alist)))
-              ((match-beginning 4)
-               (cdr
-                (assoc (match-string 4)
-                       nibbles-mode--literate-only-command-alist))))))))
+    (unless (nth 8 (syntax-ppss))
+      (when (looking-at (rx (or (syntax whitespace)
+                                buffer-end)))
+        (backward-char))
+      (let ((pos (point))
+            match?)
+        (cl-loop for p from (max (point-min) (- pos nibbles-mode--command-length)) to pos
+                 do (goto-char p)
+                 until (setq match? (and (looking-at nibbles-mode--builtins-regexp)
+                                         (> (match-end 0) pos))))
+        (when match?
+          (cond ((match-beginning 1)
+                 (let ((s (match-string 1)))
+                   (format "%s : DeBruijn index %d"
+                           s
+                           (nibbles-mode-debruijn-index-string-to-number s))))
+                ((match-beginning 2)
+                 (cdr
+                  (assoc (match-string 2)
+                         nibbles-mode--syntax-alist)))
+                ((match-beginning 3)
+                 (cdr
+                  (assoc (match-string 3)
+                         nibbles-mode--command-alist)))
+                ((match-beginning 4)
+                 (cdr
+                  (assoc (match-string 4)
+                         nibbles-mode--literate-only-command-alist)))))))))
 
 (rx-define nibbles-mode-string (delim)
   (seq delim (0+ (or (seq ?\\ anychar)
@@ -254,8 +255,10 @@ STR must match (rx nibbles-mode-debruijn-index)."
 
 (defvar nibbles-mode-syntax-table
   (let ((table (make-syntax-table prog-mode-syntax-table)))
+    (modify-syntax-entry ?# "<" table)
+    (modify-syntax-entry ?\n ">" table)
     (modify-syntax-entry ?! "." table)
-    (cl-loop for c from ?# to ?/
+    (cl-loop for c from ?$ to ?/
              do (modify-syntax-entry c "." table))
     (cl-loop for c from ?: to ?@
              do (modify-syntax-entry c "." table))
@@ -273,7 +276,7 @@ STR must match (rx nibbles-mode-debruijn-index)."
     (0 "_"))
    (nibbles-mode--command-sympha-regexp
     (0 "."))
-   ((rx "`'")
+   ((rx ?` (in "'#"))
     (0 "."))
    ((rx (or (nibbles-mode-string ?\")
             (nibbles-mode-string ?\')))
@@ -287,10 +290,15 @@ STR must match (rx nibbles-mode-debruijn-index)."
 ;;;###autoload
 (define-derived-mode nibbles-mode prog-mode "Nibbles"
   "Major mode for editing Nibbles code."
+  (setq-local comment-start "#")
+  (setq-local comment-start-skip "#+[ \t]*")
+  (setq-local comment-use-syntax t)
+
   (setq font-lock-defaults
         `((nibbles-mode-font-lock-keywords)
           nil nil nil beginning-of-defun
           (font-lock-mark-block-function . mark-paragraph)))
+
   (setq-local syntax-propertize-function
               #'nibbles-mode-syntax-propertize)
 
