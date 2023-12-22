@@ -103,6 +103,7 @@
       (";~" . ";~ : 60 :: any* reqfn \"save fn\"")
       ("==" . "== : 60 :: any* const \"equal?\"")
       ("`;" . "`; : 66 :: any* fn \"recursion (alt name ``; )\"")
+      ("``;" . "``; : a006 :: any* fn \"alt name of `;\"")
       ("`#" . "`# : f0 :: any {int} ~~nosalt \"hashmod\"")
       ("error" . "error : fd02 :: any \"error\"")))
 
@@ -228,8 +229,12 @@ STR must match (rx nibbles-mode-debruijn-index)."
        delim))
 
 (defvar nibbles-mode-font-lock-keywords
-  `((,(rx nibbles-mode-debruijn-index)
-     . font-lock-variable-name-face)
+  `((,(rx "``;")
+     . 'nibbles-mode-operator-face)
+    (,(rx nibbles-mode-debruijn-index)
+     (0 font-lock-variable-name-face keep))
+    (,nibbles-mode--command-regexp
+     . 'nibbles-mode-operator-face)
     (,(rx symbol-start
           (1+ (in "0-9")))
      . font-lock-constant-face)
@@ -249,9 +254,7 @@ STR must match (rx nibbles-mode-debruijn-index)."
     (,(rx symbol-start
           (regexp nibbles-mode--literate-only-command-regexp)
           symbol-end)
-     . font-lock-warning-face)
-    (,nibbles-mode--command-regexp
-     . 'nibbles-mode-operator-face)))
+     . font-lock-warning-face)))
 
 (defvar nibbles-mode-syntax-table
   (let ((table (make-syntax-table prog-mode-syntax-table)))
