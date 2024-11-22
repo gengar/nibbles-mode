@@ -173,16 +173,16 @@
                  (mapcar #'car nibbles-mode--syntax-alist))
     (rx-to-string
      `(or (submatch nibbles-mode-debruijn-index)
+          (submatch (regexp
+                     ,nibbles-mode--command-regexp))
+          (submatch (regexp
+                     ,nibbles-mode--literate-only-command-regexp))
           (submatch (or (regexp
                          ,(regexp-opt syntax-symbol))
                         (seq symbol-start
                              (regexp
                               ,(regexp-opt syntax-alpha))
-                             symbol-end)))
-          (submatch (regexp
-                     ,nibbles-mode--command-regexp))
-          (submatch (regexp
-                     ,nibbles-mode--literate-only-command-regexp))))))
+                             symbol-end)))))))
 
 (defun nibbles-mode-debruijn-index-string-to-number (str)
   "Convert argument reference identifier STR to DeBruijn index.
@@ -215,15 +215,15 @@ STR must match (rx nibbles-mode-debruijn-index)."
                 ((match-beginning 2)
                  (cdr
                   (assoc (match-string 2)
-                         nibbles-mode--syntax-alist)))
+                         nibbles-mode--command-alist)))
                 ((match-beginning 3)
                  (cdr
                   (assoc (match-string 3)
-                         nibbles-mode--command-alist)))
+                         nibbles-mode--literate-only-command-alist)))
                 ((match-beginning 4)
                  (cdr
                   (assoc (match-string 4)
-                         nibbles-mode--literate-only-command-alist)))))))))
+                         nibbles-mode--syntax-alist)))))))))
 
 (rx-define nibbles-mode-string (delim)
   (seq delim (0+ (or (seq ?\\ anychar)
