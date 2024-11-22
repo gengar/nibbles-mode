@@ -198,6 +198,7 @@ STR must match (rx nibbles-mode-debruijn-index)."
   (save-excursion
     (unless (nth 8 (syntax-ppss))
       (when (looking-at (rx (or (syntax whitespace)
+                                line-end
                                 buffer-end)))
         (backward-char))
       (let ((pos (point))
