@@ -197,9 +197,10 @@ STR must match (rx nibbles-mode-debruijn-index)."
   "Meant for `eldoc-documentation-function'."
   (save-excursion
     (unless (nth 8 (syntax-ppss))
-      (when (looking-at (rx (or (syntax whitespace)
-                                line-end
-                                buffer-end)))
+      (when (and (< (point-min) (point))
+                 (looking-at (rx (or (syntax whitespace)
+                                     line-end
+                                     buffer-end))))
         (backward-char))
       (let ((pos (point))
             match?)
