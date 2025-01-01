@@ -233,7 +233,7 @@ STR must match (rx nibbles-mode-debruijn-index)."
        delim))
 
 (defvar nibbles-mode-font-lock-keywords
-  `((,(rx "``;")
+  `((,(rx "``" (or ?\; ?@))
      . 'nibbles-mode-operator-face)
     (,(rx nibbles-mode-debruijn-index)
      (0 font-lock-variable-name-face keep))
